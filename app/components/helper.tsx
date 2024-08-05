@@ -28,7 +28,7 @@ Remember to import things when needed. Please write code that is absolutely perf
 Don't just add logs to debug, actually fix bugs immediately.`;
 
 
-let savedState:{folder:string,prompt?:string,webapp?:string,showScreenshot?:boolean,selectedFiles?:string[]};
+let savedState:{folder:string,prompt?:string,webapp?:string,showScreenshot?:boolean,selectedFiles?:string[],apiKey?:string};
 export const Helper = () => {
   const [value, setValue] = useState('')
   let [prompt, setPrompt] = useState('')
@@ -39,6 +39,7 @@ export const Helper = () => {
   let [browserErrors, setBrowserErrors] = useState<string>()
   let [uploadedImage, setUploadedImage] = useState<string>()
   let [selectedFiles, setSelectedFiles] = useState<string[]>([]);
+  let [apiKey, setApiKey] = useState<string>('');
   const toggleSelectFile = (path:string) => {
     if (selectedFiles.includes(path)) selectedFiles = selectedFiles.filter(file => file != path);
     else selectedFiles.push(path);
@@ -77,6 +78,7 @@ export const Helper = () => {
       selectedFiles = savedState.selectedFiles;
       setSelectedFiles(selectedFiles);
     }
+    if (savedState.apiKey) setApiKey(savedState.apiKey);
     if (webapp.length) await takeScreenshot();
   }
   React.useEffect(() => {
@@ -94,14 +96,15 @@ export const Helper = () => {
         prompt,
         webapp,
         showScreenshot,
-        selectedFiles
+        selectedFiles,
+        apiKey
       }
     }) });
   }
   const [history, setHistory] = useState<Array<ToolsBetaMessageParam>>([]);
   const [thinking, setThinking] = useState(false);
   const [screenshotting,setScreenshotting] = useState(false);
-  const [issues,setIssues] = useState([]);
+  const [issues,setIssues] = useState<any[]>([]);
   const handleSubmit = async () => {
     try {
       setIssues([]);
@@ -110,14 +113,19 @@ export const Helper = () => {
       if (uploadedImage?.length) images.push(uploadedImage);
       setThinking(true);
       const prompt = browserErrors ? `errors: ${browserErrors}\n` : '' + `${value}`;
-      const {res,issues}:{res:Array<ToolsBetaMessageParam>,issues:[]} = await (await fetch('/think', { method: 'post', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ 
+      const rres = await fetch('/think', { method: 'post', headers: { 'content-type': 'application/json','X-API-Key':apiKey }, body: JSON.stringify({ 
         instruction:prompt,
         files:selectedFiles.map(file => file.slice(folder?.length)),
         folder,
         prompt:systemMessage+'\n'+prompt,
         images:
         images
-      }) })).json();
+      }) });
+      if (!rres.ok) {
+        setIssues([rres.status,await rres.text()]);
+        return;
+      }
+      const {res,issues}:{res:Array<ToolsBetaMessageParam>,issues:[]} = await rres.json();
       // opnly show most recent for now
       setIssues(issues);
       setHistory([...res]);
@@ -135,6 +143,14 @@ export const Helper = () => {
   return (
     <HStack className='h-screen'>
       <VStack className='bg-gray-100 p-3 border h-screen'>
+        <div className='font-semibold'>&#128193; Coev API Key *</div>
+        <input 
+          className='bg-gray-50 w-full border p-2 text-sm'
+          value={apiKey} placeholder='set your api key here' type='password' onChange={(e) => {
+          apiKey = e.target.value;
+          setApiKey(apiKey);
+          saveLocal();
+          }}/>
         <div className='font-semibold'>&#128193; Workspace Path *</div>
         <input 
           className='bg-gray-50 w-full border p-2 text-sm'

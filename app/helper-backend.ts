@@ -17,20 +17,22 @@ export class AppService {
     files,
     folder,
     prompt,
-    images
+    images,
+    apiKey
   }: {
     instruction: string;
     files: string[];
     folder:string;
     prompt:string;
     images?:string[];
+    apiKey:string;
   }) {
     const fileMap: { [id: string]: string } = {};
     await Promise.all(files.map(async selectedFile => {
       const file = await this.getFile({folder,name:selectedFile});
       fileMap[selectedFile] = file;
     }));
-    const {output_file_map,issues,res} = await ThinkFileEdits({file_map:fileMap,instruction,prompt,images});
+    const {output_file_map,issues,res} = await ThinkFileEdits({file_map:fileMap,instruction,prompt,images},apiKey);
     await Promise.all(
       Object.entries(output_file_map).map(async ([name, content]) => {
         await this.updateFile({ content, name,folder });
@@ -47,11 +49,15 @@ interface think {
   prompt:string
 }
 
-async function ThinkFileEdits(input:think):Promise<{output_file_map:{[id:string]:string},issues:any[],res:any}>{
-  // const res = await fetch('http://localhost:5174/api/think',{
-  const res = await fetch('https://www.coevai.com/api/think',{
+async function ThinkFileEdits(input:think,apiKey:string):Promise<{output_file_map:{[id:string]:string},issues:any[],res:any}>{
+  const res = await fetch('http://localhost:5174/api/think',{
+  // const res = await fetch('https://www.coevai.com/api/think',{
     method:'POST',
-    body:JSON.stringify(input)
+    body:JSON.stringify(input),
+    headers:{
+      'X-API-Key':apiKey
+    }
   });
+  if (!res.ok) console.error('ThinkFileEdits error',res.status,await res.text());
   return await res.json();
 }

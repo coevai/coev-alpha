@@ -6,7 +6,8 @@ export async function action({
   }: ActionFunctionArgs) {
     const coev_service = new AppService();
     const body = await request.json()
-    const files = await coev_service.writeCode(body as any);
+    body.apiKey = request.headers.get('X-API-Key');
+    const files = await coev_service.writeCode(body as any,);
     return json(
       files
     );
