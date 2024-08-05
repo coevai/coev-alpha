@@ -48,6 +48,7 @@ interface think {
 }
 
 async function ThinkFileEdits(input:think):Promise<{output_file_map:{[id:string]:string},issues:any[],res:any}>{
+  // const res = await fetch('http://localhost:5174/api/think',{
   const res = await fetch('https://www.coevai.com/api/think',{
     method:'POST',
     body:JSON.stringify(input)
