@@ -32,13 +32,13 @@ export class AppService {
       const file = await this.getFile({folder,name:selectedFile});
       fileMap[selectedFile] = file;
     }));
-    const {output_file_map,issues,res} = await ThinkFileEdits({file_map:fileMap,instruction,prompt,images},apiKey);
+    const {output_file_map,issues,res, tokens_used, tokens_remaining} = await ThinkFileEdits({file_map:fileMap,instruction,prompt,images},apiKey);
     await Promise.all(
       Object.entries(output_file_map).map(async ([name, content]) => {
         await this.updateFile({ content, name,folder });
       }),
     );
-    return {res,issues};
+    return {res,issues,tokens_used,tokens_remaining};
   }
 }
 
@@ -49,9 +49,9 @@ interface think {
   prompt:string
 }
 
-async function ThinkFileEdits(input:think,apiKey:string):Promise<{output_file_map:{[id:string]:string},issues:any[],res:any}>{
-  const res = await fetch('http://localhost:5174/api/think',{
-  // const res = await fetch('https://www.coevai.com/api/think',{
+async function ThinkFileEdits(input:think,apiKey:string):Promise<{output_file_map:{[id:string]:string},issues:any[],res:any,tokens_used:number,tokens_remaining:number}>{
+  // const res = await fetch('http://localhost:5174/api/think',{
+  const res = await fetch('https://www.coevai.com/api/think',{
     method:'POST',
     body:JSON.stringify(input),
     headers:{

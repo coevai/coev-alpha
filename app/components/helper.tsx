@@ -125,10 +125,11 @@ export const Helper = () => {
         setIssues([rres.status,await rres.text()]);
         return;
       }
-      const {res,issues}:{res:Array<ToolsBetaMessageParam>,issues:[]} = await rres.json();
+      const {res,issues,tokens_used,tokens_remaining}:{res:Array<ToolsBetaMessageParam>,issues:[],tokens_used:number,tokens_remaining:number} = await rres.json();
       // opnly show most recent for now
       setIssues(issues);
       setHistory([...res]);
+      console.log('tokens_used',tokens_used,'tokens_remaining',tokens_remaining);
     }
 
     catch (e) {
