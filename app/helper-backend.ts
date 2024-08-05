@@ -51,11 +51,14 @@ interface think {
 
 async function ThinkFileEdits(input:think,apiKey:string):Promise<{output_file_map:{[id:string]:string},issues:any[],res:any,tokens_used:number,tokens_remaining:number}>{
   // const res = await fetch('http://localhost:5174/api/think',{
-  const res = await fetch('https://www.coevai.com/api/think',{
+  // const res = await fetch('https://www.coevai.com/api/think',{
+  // const res = await fetch('http://127.0.0.1:54321/functions/v1/think',{
+  const res = await fetch('https://nrosixfbwutwngmsankz.supabase.co/functions/v1/think',{
     method:'POST',
     body:JSON.stringify(input),
     headers:{
-      'X-API-Key':apiKey
+      'X-API-Key':apiKey,
+      authorization:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5yb3NpeGZid3V0d25nbXNhbmt6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjI2NjY3ODAsImV4cCI6MjAzODI0Mjc4MH0.JmYcTSfb46xEO814UlrDvyoEQZOlZ7Wb1Ba9IN3qP9g'
     }
   });
   if (!res.ok) console.error('ThinkFileEdits error',res.status,await res.text());
