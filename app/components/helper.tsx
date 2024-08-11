@@ -1,5 +1,5 @@
 
-import { Box, Button, HStack, Center, VStack, CheckboxGroup, Checkbox, Code, Textarea, Input, Image , Collapse, Spinner} from '@chakra-ui/react'
+import { Box, Button, HStack, Center, VStack, CheckboxGroup, Checkbox, Code, Textarea, Input, Image, Collapse, Spinner, Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react'
 import { LoaderFunctionArgs, json } from '@remix-run/node';
 import { useFetcher, useLoaderData } from '@remix-run/react';
 import React, { useState } from 'react';
@@ -145,76 +145,88 @@ export const Helper = () => {
 
   return (
     <HStack className='min-h-screen'>
-      <VStack className='bg-gray-100 p-3 border min-h-screen'>
-        <div className='font-semibold'>&#128193; Coev API Key *</div>
-        <input 
-          className='bg-gray-50 w-full border p-2 text-sm'
-          value={apiKey} placeholder='set your api key here' type='password' onChange={(e) => {
-          apiKey = e.target.value;
-          setApiKey(apiKey);
-          saveLocal();
-          }}/>
-        <div className='font-semibold'>&#128193; Workspace Path *</div>
-        <input 
-          className='bg-gray-50 w-full border p-2 text-sm'
-          value={folder} placeholder='/path/to/workspace' onChange={(e) => {
-          folder = e.target.value;
-          setFolder(folder);
-          saveLocal();
-          }}/>
-        <div className='font-semibold'>Select Files for AI to read / edit *</div>
-        {folder && configLoaded && <FileTree path={folder} is_folder={true} base_path={folder} expand={true} toggleSelectedFile={toggleSelectFile} selectedFiles={selectedFiles}/>}
-        <div className='font-semibold'>Show AI An Image</div>
-        <Input type="file" name="file" id='file' onChange={async (e) => {
-          if (!e?.target?.files) return;
-          console.log(e.target.files[0]);
-          let file = e.target.files[0];
-          const result = await new Promise<string>(resolve => {
-            let reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => {
-              resolve(reader.result as string);
-            };
-          });
-          console.log("File Is", file);
-          setUploadedImage(result);
-        }} />
-        <HStack>
-          <span className='font-semibold'>Collect web app errors / screenshot</span>
-          <input className="g-gray-50 w-full border text-sm p-2" type='checkbox' checked={showScreenshot} onChange={(e) => {showScreenshot = true;setShowScreenshot(true);saveLocal()}} />
-        </HStack>
-        <input 
-          className='g-gray-50 w-full border text-sm p-2'
-          value={webapp} placeholder='http://localhost:8080' onChange={(e) => {
-          webapp = e.target.value;
-          setWebapp(webapp);
-          saveLocal();
-          }}/>
+      <VStack className='bg-gray-100 p-3 border min-h-screen' width='400px'>
+        <Tabs width='100%'>
+          <TabList>
+            <Tab>Files</Tab>
+            <Tab>Settings</Tab>
+          </TabList>
+          <TabPanels>
+            <TabPanel>
+              <VStack align='stretch' spacing={3}>
+                <div className='font-semibold'>&#128193; Workspace Path *</div>
+                <input 
+                  className='bg-gray-50 w-full border p-2 text-sm'
+                  value={folder} placeholder='/path/to/workspace' onChange={(e) => {
+                  folder = e.target.value;
+                  setFolder(folder);
+                  saveLocal();
+                  }}/>
+                <div className='font-semibold'>Select Files for AI to read / edit *</div>
+                {folder && configLoaded && <FileTree path={folder} is_folder={true} base_path={folder} expand={true} toggleSelectedFile={toggleSelectFile} selectedFiles={selectedFiles}/>}
 
-          <div className='font-semibold'>
-            AI Project Goal
+              </VStack>
+            </TabPanel>
+            <TabPanel>
+              <VStack align='stretch' spacing={3}>
+                <div className='font-semibold'>&#128193; Coev API Key *</div>
+                <input 
+                  className='bg-gray-50 w-full border p-2 text-sm'
+                  value={apiKey} placeholder='set your api key here' type='password' onChange={(e) => {
+                  apiKey = e.target.value;
+                  setApiKey(apiKey);
+                  saveLocal();
+                  }}/>
+                <HStack>
+                  <span className='font-semibold'>Collect web app errors / screenshot</span>
+                  <input className="g-gray-50 w-full border text-sm p-2" type='checkbox' checked={showScreenshot} onChange={(e) => {showScreenshot = true;setShowScreenshot(true);saveLocal()}} />
+                </HStack>
+                <input 
+                  className='g-gray-50 w-full border text-sm p-2'
+                  value={webapp} placeholder='http://localhost:8080' onChange={(e) => {
+                  webapp = e.target.value;
+                  setWebapp(webapp);
+                  saveLocal();
+                  }}/>
+                <div className='font-semibold'>
+                  AI Project Goal
+                </div>
+                <textarea
+                  className='bg-gray-50 w-full border text-sm p-2'
+                  value={prompt}
+                  onChange={(e) => {
+                    prompt = e.target.value;
+                    setPrompt(prompt);
+                    saveLocal();
+                  }}
+                  rows={8}
+                />
+                <Checkbox className='font-semibold' isChecked={showCode} onChange={() => setShowCode(!showCode)}>Show Agents Code Edits</Checkbox>
+                <div className='font-semibold'>
+                  Work Style
+                </div>
+                <Textarea size='xl' defaultValue={systemMessage} rows={2} disabled>
+                </Textarea>
 
-          </div>
-          <textarea
-            className='bg-gray-50 w-full border text-sm p-2'
-            value={prompt}
-            onChange={(e) => {
-              prompt = e.target.value;
-              setPrompt(prompt);
-              saveLocal();
-            }}
-            rows={8}
-          />
-
-        <Checkbox className='font-semibold' isChecked={showCode} onChange={() => setShowCode(!showCode)}>Show Agents Code Edits</Checkbox>
-        <div className='font-semibold'>
-            Work Style
-          </div>
-          <Textarea size='xl' defaultValue={systemMessage} rows={2} disabled>
-
-          </Textarea>
-
-
+                <div className='font-semibold'>Show AI An Image</div>
+                <Input type="file" name="file" id='file' onChange={async (e) => {
+                  if (!e?.target?.files) return;
+                  console.log(e.target.files[0]);
+                  let file = e.target.files[0];
+                  const result = await new Promise<string>(resolve => {
+                    let reader = new FileReader();
+                    reader.readAsDataURL(file);
+                    reader.onload = () => {
+                      resolve(reader.result as string);
+                    };
+                  });
+                  console.log("File Is", file);
+                  setUploadedImage(result);
+                }} />
+              </VStack>
+            </TabPanel>
+          </TabPanels>
+        </Tabs>
       </VStack>
       <Center className='w-full' >
         <VStack>

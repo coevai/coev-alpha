@@ -61,6 +61,10 @@ async function ThinkFileEdits(input:think,apiKey:string):Promise<{output_file_ma
       authorization:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5yb3NpeGZid3V0d25nbXNhbmt6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjI2NjY3ODAsImV4cCI6MjAzODI0Mjc4MH0.JmYcTSfb46xEO814UlrDvyoEQZOlZ7Wb1Ba9IN3qP9g'
     }
   });
-  if (!res.ok) console.error('ThinkFileEdits error',res.status,await res.text());
+  if (!res.ok) {
+    const error = await res.text();
+    console.error('ThinkFileEdits error',res.status);
+    throw new Error(error)
+  }
   return await res.json();
 }
