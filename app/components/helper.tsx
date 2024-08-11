@@ -49,6 +49,7 @@ export const Helper = () => {
   }
   let [folder, setFolder] = useState<string>();
   async function takeScreenshot(){
+    if (!showScreenshot) return;
     setScreenshotting(true);
 
     const {screenshot,errors} = (await (await fetch('/look', { method: 'post', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ 
@@ -181,7 +182,7 @@ export const Helper = () => {
         }} />
         <HStack>
           <span className='font-semibold'>Collect web app errors / screenshot</span>
-          <input className="g-gray-50 w-full border text-sm p-2" type='checkbox' checked={showScreenshot} onChange={(e) => {showScreenshot = true;setShowScreenshot(true);saveLocal()}} />
+          <input className="g-gray-50 w-full border text-sm p-2" type='checkbox' checked={showScreenshot} onChange={(e) => {showScreenshot = !showScreenshot;setShowScreenshot(showScreenshot);saveLocal()}} />
         </HStack>
         <input 
           className='g-gray-50 w-full border text-sm p-2'
