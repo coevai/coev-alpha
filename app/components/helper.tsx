@@ -39,6 +39,7 @@ export const Helper = () => {
   let [browserErrors, setBrowserErrors] = useState<string>()
   let [uploadedImage, setUploadedImage] = useState<string>()
   let [selectedFiles, setSelectedFiles] = useState<string[]>([]);
+  let [configLoaded, setConfigLoaded] = useState(false);
   let [apiKey, setApiKey] = useState<string>('');
   const toggleSelectFile = (path:string) => {
     if (selectedFiles.includes(path)) selectedFiles = selectedFiles.filter(file => file != path);
@@ -79,6 +80,7 @@ export const Helper = () => {
       setSelectedFiles(selectedFiles);
     }
     if (savedState.apiKey) setApiKey(savedState.apiKey);
+    setConfigLoaded(true);
     if (webapp.length) await takeScreenshot();
   }
   React.useEffect(() => {
@@ -142,8 +144,8 @@ export const Helper = () => {
 
 
   return (
-    <HStack className='h-screen'>
-      <VStack className='bg-gray-100 p-3 border h-screen'>
+    <HStack className='min-h-screen'>
+      <VStack className='bg-gray-100 p-3 border min-h-screen'>
         <div className='font-semibold'>&#128193; Coev API Key *</div>
         <input 
           className='bg-gray-50 w-full border p-2 text-sm'
@@ -161,7 +163,7 @@ export const Helper = () => {
           saveLocal();
           }}/>
         <div className='font-semibold'>Select Files for AI to read / edit *</div>
-        {folder && <FileTree path={folder} is_folder={true} base_path={folder} expand={true} toggleSelectedFile={toggleSelectFile} selectedFiles={selectedFiles}/>}
+        {folder && configLoaded && <FileTree path={folder} is_folder={true} base_path={folder} expand={true} toggleSelectedFile={toggleSelectFile} selectedFiles={selectedFiles}/>}
         <div className='font-semibold'>Show AI An Image</div>
         <Input type="file" name="file" id='file' onChange={async (e) => {
           if (!e?.target?.files) return;

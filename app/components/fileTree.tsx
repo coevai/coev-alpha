@@ -14,9 +14,15 @@ export function FileTree({path,is_folder,base_path,expand,toggleSelectedFile,sel
         }
     }
     React.useEffect(() => {
-        if(expand) expandFolder();
-        if (!is_folder && selectedFiles.includes(path)) setExpanded(true);
-    },[expand]);
+        if (is_folder){
+            if(selectedFiles.some(file => file.includes(path)) || expand) {
+                expandFolder();
+                setExpanded(true);
+            }
+        } else {
+            if (selectedFiles.includes(path)) setExpanded(true);
+        }
+    },[]);
     const [files,setFiles] = React.useState<{path:string,is_folder:boolean}[]>();
     let text = path.slice(base_path.length);
     if (text.startsWith('/')) text = text.slice(1);
