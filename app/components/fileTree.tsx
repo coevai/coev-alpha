@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Icon, IconButton } from '@chakra-ui/react'
+import { Icon, IconButton ,Box,Checkbox} from '@chakra-ui/react'
 import { ChevronDownIcon,ChevronRightIcon,ChevronUpIcon } from '@chakra-ui/icons';
 export function FileTree({path,is_folder,base_path,expand,toggleSelectedFile,selectedFiles}:{path:string,is_folder:boolean,base_path:string,expand?:boolean,toggleSelectedFile:(path:string) => any,selectedFiles:string[]}) { 
     const [expanded,setExpanded] = React.useState(expand);
@@ -28,23 +28,40 @@ export function FileTree({path,is_folder,base_path,expand,toggleSelectedFile,sel
     if (text.startsWith('/')) text = text.slice(1);
     const Component = expanded ? ChevronDownIcon : ChevronRightIcon;
     return (
-        <div className='text-sm'>
-            
-            <div 
-                className={(expanded && !is_folder) ? 'bg-green-200' : ''}
+        <Box className='text-sm'>
+            <Box
+                className={`p-2 rounded cursor-pointer transition-colors duration-200 ${(expanded && !is_folder) ? 'bg-blue-200 dark:bg-blue-700' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}`}
                 onClick={() => {
                     if (is_folder) expandFolder();        
                     else toggleSelectedFile(path);
                     setExpanded(!expanded);
                 }}
+                display='flex'
+                alignItems='center'
             >
-                {is_folder && <Component
-                    
-                />} {text}</div>
-            <div className='pl-3'>
-                {expanded && files?.map(file =><FileTree key={file.path} {...file} base_path={path} toggleSelectedFile={toggleSelectedFile} selectedFiles={selectedFiles}/>)}
-            </div>
-        </div>
+                {is_folder && <Component mr={2} />}
+                <Box flex={1}>{text}</Box>
+                {!is_folder && (
+                    <Checkbox
+                        isChecked={expanded}
+                        onChange={() => {}}
+                        size='sm'
+                        colorScheme='blue'
+                    />
+                )}
+            </Box>
+            <Box pl={6}>
+                {expanded && files?.map(file => (
+                    <FileTree
+                        key={file.path}
+                        {...file}
+                        base_path={path}
+                        toggleSelectedFile={toggleSelectedFile}
+                        selectedFiles={selectedFiles}
+                    />
+                ))}
+            </Box>
+        </Box>
     );
 }
 

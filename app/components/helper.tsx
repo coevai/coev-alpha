@@ -1,5 +1,6 @@
 
-import { Box, Button, HStack, Center, VStack, CheckboxGroup, Checkbox, Code, Textarea, Input, Image, Collapse, Spinner, Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react'
+import { Box, Button, HStack, Center, VStack, CheckboxGroup, Checkbox, Code, Textarea, Input, Image, Collapse, Spinner, Tabs, TabList, TabPanels, Tab, TabPanel, useColorMode, IconButton } from '@chakra-ui/react'
+import { MoonIcon, SunIcon } from '@chakra-ui/icons'
 import { LoaderFunctionArgs, json } from '@remix-run/node';
 import { useFetcher, useLoaderData } from '@remix-run/react';
 import React, { useState } from 'react';
@@ -144,21 +145,36 @@ export const Helper = () => {
   }
 
 
+  const { colorMode, toggleColorMode } = useColorMode();
+
   return (
-    <HStack className='min-h-screen'>
-      <VStack className='bg-gray-100 p-3 border min-h-screen' width='400px'>
-        <Tabs width='100%'>
+    <Box className={`min-h-screen ${colorMode === 'dark' ? 'bg-gray-800 text-white' : 'bg-gray-100'}`}>
+      <HStack className='min-h-screen' spacing={0}>
+        <VStack className={`p-4 border-r ${colorMode === 'dark' ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'}`} width='400px' height='100vh' overflowY='auto'>
+          <HStack justifyContent='space-between' width='100%'>
+            <Box fontWeight='bold' fontSize='xl'>Coev AI</Box>
+            <IconButton
+              aria-label='Toggle dark mode'
+              icon={colorMode === 'dark' ? <SunIcon /> : <MoonIcon />}
+              onClick={toggleColorMode}
+              variant='ghost'
+            />
+          </HStack>
+        <Tabs width='100%' variant='soft-rounded' colorScheme='blue'>
           <TabList>
-            <Tab>Files</Tab>
-            <Tab>Settings</Tab>
+            <Tab _selected={{ color: 'white', bg: 'blue.500' }}>Files</Tab>
+            <Tab _selected={{ color: 'white', bg: 'blue.500' }}>Settings</Tab>
           </TabList>
           <TabPanels>
             <TabPanel>
               <VStack align='stretch' spacing={3}>
                 <div className='font-semibold'>&#128193; Workspace Path *</div>
-                <input 
-                  className='bg-gray-50 w-full border p-2 text-sm'
-                  value={folder} placeholder='/path/to/workspace' onChange={(e) => {
+                <Input
+                  value={folder}
+                  placeholder='/path/to/workspace'
+                  size='sm'
+                  variant='filled'
+                  onChange={(e) => {
                   folder = e.target.value;
                   setFolder(folder);
                   saveLocal();
@@ -178,10 +194,16 @@ export const Helper = () => {
                   setApiKey(apiKey);
                   saveLocal();
                   }}/>
-                <HStack>
+                <Checkbox
+                  isChecked={showScreenshot}
+                  onChange={(e) => {
+                    showScreenshot = e.target.checked;
+                    setShowScreenshot(showScreenshot);
+                    saveLocal();
+                  }}
+                >
                   <span className='font-semibold'>Collect web app errors / screenshot</span>
-                  <input className="g-gray-50 w-full border text-sm p-2" type='checkbox' checked={showScreenshot} onChange={(e) => {showScreenshot = !showScreenshot;setShowScreenshot(showScreenshot);saveLocal()}} />
-                </HStack>
+                </Checkbox>
                 <input 
                   className='g-gray-50 w-full border text-sm p-2'
                   value={webapp} placeholder='http://localhost:8080' onChange={(e) => {
@@ -229,11 +251,9 @@ export const Helper = () => {
           </TabPanels>
         </Tabs>
       </VStack>
-      <Center className='w-full' >
-        <VStack>
-
-          <VStack>
-            
+      <Box flex={1} className='w-full p-6' overflowY='auto'>
+        <VStack spacing={6} align='stretch'>
+          <Box className={`p-4 rounded-lg ${colorMode === 'dark' ? 'bg-gray-700' : 'bg-white shadow-md'}`}> 
             {uploadedImage && <>
               <div>Uploaded image:</div>
               <Image maxWidth='768px' border={'1px'} src={uploadedImage}/>
@@ -272,27 +292,42 @@ export const Helper = () => {
                   })}</div>
                 })
               }
-              return <Box key={i} whiteSpace={'pre-wrap'} >
-                {content}
-
-              </Box>
+              return (
+                <Box
+                  key={i}
+                  whiteSpace='pre-wrap'
+                  className={`p-4 rounded-lg mb-4 ${h.role === 'assistant' ? (colorMode === 'dark' ? 'bg-blue-800' : 'bg-blue-100') : (colorMode === 'dark' ? 'bg-gray-600' : 'bg-gray-100')}`}
+                >
+                  <Box fontWeight='bold' mb={2}>{h.role === 'assistant' ? 'AI' : 'You'}</Box>
+                  {content}
+                </Box>
+              )
             })}
-          </VStack>
-          <HStack alignItems={'center'} justifyContent={'center'}>
+          </Box>
+          <HStack alignItems='flex-start' spacing={4}>
             <Textarea
-            className='text-center'
               value={value}
               onChange={handleChange}
               placeholder='What should the AI do now?'
-              size='xl'
-              rows={5}
-              width={'700px'}
+              size='md'
+              rows={3}
+              resize='none'
+              className={`flex-grow ${colorMode === 'dark' ? 'bg-gray-700 text-white' : 'bg-white'}`}
             />
-            <Button onClick={handleSubmit} isLoading={thinking}>Send</Button>
+            <Button
+              onClick={handleSubmit}
+              isLoading={thinking}
+              colorScheme='blue'
+              size='lg'
+              px={8}
+            >
+              Send
+            </Button>
           </HStack>
         </VStack >
-      </Center >
+      </Box >
     </HStack>
+    </Box>
   )
 }
 
