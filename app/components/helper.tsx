@@ -160,7 +160,7 @@ export const Helper = () => {
               variant='ghost'
             />
           </HStack>
-        <Tabs width='100%' variant='soft-rounded' colorScheme='blue'>
+          <Tabs width='100%' variant='soft-rounded' colorScheme='blue'>
           <TabList>
             <Tab _selected={{ color: 'white', bg: 'blue.500' }}>Files</Tab>
             <Tab _selected={{ color: 'white', bg: 'blue.500' }}>Settings</Tab>
@@ -268,7 +268,7 @@ export const Helper = () => {
                 <div className='bg-red-100 p-8'>{browserErrors}</div>
               </>
             }
-            {issues?.length && <div className='bg-red-100'>
+            {issues?.length > 0 && <div className='bg-red-100'>
               AI Errors:
               {JSON.stringify(issues,null,2)}
 
