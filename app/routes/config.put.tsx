@@ -6,7 +6,7 @@ export async function action({
   }: ActionFunctionArgs) {
     const {folder,content} = await request.json();
     const coev_service = new AppService();
-    coev_service.updateFile({name:'.coev',folder,content:JSON.stringify(content,null,2)})
+    coev_service.updateFile({name:'.coev',folder,content:JSON.stringify(content,null,2),createDirs:false})
     return json({})
   }
   

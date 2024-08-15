@@ -7,9 +7,9 @@ export class AppService {
     const file = fs.readFileSync(gp(folder,name)).toString();
     return file;
   }
-  updateFile({ content, name, folder}: { content: string; name: string,folder:string }) {
+  updateFile({ content, name, folder,createDirs}: { content: string; name: string,folder:string,createDirs?:boolean }) {
     const filename = gp(folder,name);
-    fs.mkdirSync(path.dirname(filename), {recursive: true});
+    if (createDirs !== false) fs.mkdirSync(path.dirname(filename), {recursive: true});
     fs.writeFileSync(filename, content);
   }
   async writeCode({
