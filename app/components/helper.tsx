@@ -186,9 +186,9 @@ export const Helper = () => {
             </TabPanel>
             <TabPanel>
               <VStack align='stretch' spacing={3}>
-                <div className='font-semibold'>&#128193; Coev API Key *</div>
+                <div className='font-semibold'>&#128193; Coev API Key * <a className="text-blue-400" href="https://www.coevai.com/download">(get here)</a></div>
                 <input 
-                  className='bg-gray-50 w-full border p-2 text-sm'
+                  className='w-full border p-2 text-sm'
                   value={apiKey} placeholder='set your api key here' type='password' onChange={(e) => {
                   apiKey = e.target.value;
                   setApiKey(apiKey);
@@ -215,7 +215,7 @@ export const Helper = () => {
                   AI Project Goal
                 </div>
                 <textarea
-                  className='bg-gray-50 w-full border text-sm p-2'
+                  className='w-full border text-sm p-2'
                   value={prompt}
                   onChange={(e) => {
                     prompt = e.target.value;
