@@ -78,6 +78,7 @@ export const Helper = () => {
       setShowScreenshot(showScreenshot);
     }
     if (savedState.selectedFiles) {
+      savedState.selectedFiles = savedState.selectedFiles.filter(f => f.includes(folder??""));
       selectedFiles = savedState.selectedFiles;
       setSelectedFiles(selectedFiles);
     }
@@ -280,7 +281,7 @@ export const Helper = () => {
               else if (h.role === 'assistant' && Array.isArray(h.content)) {
                 content = h?.content?.map((tool_call, i) => {
                   if (tool_call.type !== 'tool_use' || !showCode) return <></>
-                  return <div key={i}>{(tool_call.input as fnoutput).edits.map((fn,i) => {
+                  return <div key={i}>{(tool_call.input as fnoutput)?.edits?.map((fn,i) => {
                   return <div key={i}>
                     <div>{fn.file_name}</div>
                     <div>{fn.change_summary}</div>
@@ -310,7 +311,7 @@ export const Helper = () => {
               onChange={handleChange}
               placeholder='What should the AI do now?'
               size='md'
-              rows={3}
+              rows={5}
               resize='none'
               className={`flex-grow ${colorMode === 'dark' ? 'bg-gray-700 text-white' : 'bg-white'}`}
             />
