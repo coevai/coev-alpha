@@ -35,13 +35,14 @@ export const Helper = () => {
   let [prompt, setPrompt] = useState('')
   let [webapp, setWebapp] = useState('')
   let [showCode, setShowCode] = useState(false)
-  let [showScreenshot, setShowScreenshot] = useState(false)
-  let [screenshot, setScreenshot] = useState<string>()
+  // let [showScreenshot, setShowScreenshot] = useState(false)
+  // let [screenshot, setScreenshot] = useState<string>()
   let [browserErrors, setBrowserErrors] = useState<string>()
   let [uploadedImage, setUploadedImage] = useState<string>()
   let [selectedFiles, setSelectedFiles] = useState<string[]>([]);
   let [configLoaded, setConfigLoaded] = useState(false);
   let [apiKey, setApiKey] = useState<string>('');
+  const [iframeCounter,setIframeCounter] = useState(0);
   const toggleSelectFile = (path:string) => {
     if (selectedFiles.includes(path)) selectedFiles = selectedFiles.filter(file => file != path);
     else selectedFiles.push(path);
@@ -49,17 +50,6 @@ export const Helper = () => {
     saveLocal();
   }
   let [folder, setFolder] = useState<string>();
-  async function takeScreenshot(){
-    if (!showScreenshot) return;
-    setScreenshotting(true);
-
-    const {screenshot,errors} = (await (await fetch('/look', { method: 'post', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ 
-      webapp
-    }) })).json());
-    setScreenshot(screenshot);
-    setBrowserErrors(errors);
-    setScreenshotting(false);
-  }
   async function OnStart(){
     if (!savedState) {
       const localState = JSON.parse(localStorage.getItem('ai-coder')??JSON.stringify({folder:'/fillthisin'}));
@@ -73,10 +63,6 @@ export const Helper = () => {
     setPrompt(prompt);
     webapp = savedState.webapp??'';
     setWebapp(webapp);
-    if (savedState.showScreenshot) {
-      showScreenshot = savedState.showScreenshot;
-      setShowScreenshot(showScreenshot);
-    }
     if (savedState.selectedFiles) {
       savedState.selectedFiles = savedState.selectedFiles.filter(f => f.includes(folder??""));
       selectedFiles = savedState.selectedFiles;
@@ -84,7 +70,9 @@ export const Helper = () => {
     }
     if (savedState.apiKey) setApiKey(savedState.apiKey);
     setConfigLoaded(true);
-    if (webapp.length) await takeScreenshot();
+  }
+  function ResetIframe() {
+    setIframeCounter(i => i+1);
   }
   React.useEffect(() => {
     OnStart();
@@ -100,7 +88,6 @@ export const Helper = () => {
         folder,
         prompt,
         webapp,
-        showScreenshot,
         selectedFiles,
         apiKey
       }
@@ -114,7 +101,6 @@ export const Helper = () => {
     try {
       setIssues([]);
       let images:string[] = [];
-      if (showScreenshot && screenshot?.length) images.push(screenshot);
       if (uploadedImage?.length) images.push(uploadedImage);
       setThinking(true);
       const prompt = browserErrors ? `errors: ${browserErrors}\n` : '' + `${value}`;
@@ -133,7 +119,6 @@ export const Helper = () => {
       const {res,issues,tokens_used,tokens_remaining}:{res:Array<ToolsBetaMessageParam>,issues:[],tokens_used:number,tokens_remaining:number} = await rres.json();
       // opnly show most recent for now
       setIssues(issues);
-      setHistory([...res]);
       console.log('tokens_used',tokens_used,'tokens_remaining',tokens_remaining);
     }
 
@@ -142,7 +127,7 @@ export const Helper = () => {
     } finally {
       setThinking(false);
     }
-    if (webapp.length) await takeScreenshot();
+    if (webapp.length) await ResetIframe();
   }
 
 
@@ -195,16 +180,16 @@ export const Helper = () => {
                   setApiKey(apiKey);
                   saveLocal();
                   }}/>
-                <Checkbox
+                {/* <Checkbox
                   isChecked={showScreenshot}
                   onChange={(e) => {
                     showScreenshot = e.target.checked;
                     setShowScreenshot(showScreenshot);
                     saveLocal();
                   }}
-                >
-                  <span className='font-semibold'>Collect web app errors / screenshot</span>
-                </Checkbox>
+                > */}
+                  <span className='font-semibold'>Show Webapp</span>
+                {/* </Checkbox> */}
                 <input 
                   className='g-gray-50 w-full border text-sm p-2'
                   value={webapp} placeholder='http://localhost:8080' onChange={(e) => {
@@ -259,10 +244,7 @@ export const Helper = () => {
               <div>Uploaded image:</div>
               <Image maxWidth='768px' border={'1px'} src={uploadedImage}/>
             </>}
-            {screenshotting && <HStack className='text-center items-center'><div>Screenshotting {webapp}<Spinner /></div></HStack>}
-            {showScreenshot && screenshot && <>
-              <Image maxWidth='768px' border={'1px'} className="border-2" src={'data:image/png;base64, '+screenshot}/>
-            </>}
+            <iframe key={iframeCounter} src={webapp} className='w-full' style={{height:'700px'}}></iframe>
             {
               browserErrors && <>
                 <div>Errors:</div>
