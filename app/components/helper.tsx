@@ -119,6 +119,7 @@ export const Helper = () => {
       const {res,issues,tokens_used,tokens_remaining}:{res:Array<ToolsBetaMessageParam>,issues:[],tokens_used:number,tokens_remaining:number} = await rres.json();
       // opnly show most recent for now
       setIssues(issues);
+      setHistory([...res]);
       console.log('tokens_used',tokens_used,'tokens_remaining',tokens_remaining);
     }
 
@@ -275,11 +276,12 @@ export const Helper = () => {
                   })}</div>
                 })
               }
+              console.log(h,content);
               return (
                 <Box
                   key={i}
                   whiteSpace='pre-wrap'
-                  className={`p-4 rounded-lg mb-4 ${h.role === 'assistant' ? (colorMode === 'dark' ? 'bg-blue-800' : 'bg-blue-100') : (colorMode === 'dark' ? 'bg-gray-600' : 'bg-gray-100')}`}
+                  className={`p-4 rounded-lg mb-4`}
                 >
                   <Box fontWeight='bold' mb={2}>{h.role === 'assistant' ? 'AI' : 'You'}</Box>
                   {content}
