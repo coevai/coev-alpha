@@ -22,7 +22,7 @@ interface fnoutput {
   }[];
 }
 
-const systemMessage = `When editing code, Write a step by step plan of code changes that need to be made ( 1-3 lines), then make all necessary code changes to implement plan. 
+const systemMessage = `When editing code, Write a step by brief plan of code changes that need to be made ( 1 line.), then make all necessary code changes to implement plan. 
 When fixing bugs, instead think about why the bug was introduced in the first place then fix it.
 Dont remove features by accident. 
 Remember to import things when needed. Please write code that is absolutely perfect with no shortcuts taken and no bugs.
@@ -37,7 +37,6 @@ export const Helper = () => {
   let [showCode, setShowCode] = useState(false)
   // let [showScreenshot, setShowScreenshot] = useState(false)
   // let [screenshot, setScreenshot] = useState<string>()
-  let [browserErrors, setBrowserErrors] = useState<string>()
   let [uploadedImage, setUploadedImage] = useState<string>()
   let [selectedFiles, setSelectedFiles] = useState<string[]>([]);
   let [configLoaded, setConfigLoaded] = useState(false);
@@ -103,7 +102,6 @@ export const Helper = () => {
       let images:string[] = [];
       if (uploadedImage?.length) images.push(uploadedImage);
       setThinking(true);
-      const prompt = browserErrors ? `errors: ${browserErrors}\n` : '' + `${value}`;
       const rres = await fetch('/think', { method: 'post', headers: { 'content-type': 'application/json','X-API-Key':apiKey }, body: JSON.stringify({ 
         instruction:prompt,
         files:selectedFiles.map(file => file.slice(folder?.length)),
@@ -246,12 +244,6 @@ export const Helper = () => {
               <Image maxWidth='768px' border={'1px'} src={uploadedImage}/>
             </>}
             <iframe key={iframeCounter} src={webapp} className='w-full' style={{height:'700px'}}></iframe>
-            {
-              browserErrors && <>
-                <div>Errors:</div>
-                <div className='bg-red-100 p-8'>{browserErrors}</div>
-              </>
-            }
             {issues?.length > 0 && <div className='bg-red-100'>
               AI Errors:
               {JSON.stringify(issues,null,2)}
@@ -260,10 +252,13 @@ export const Helper = () => {
             </div>}
             {history.map((h, i) => {
               let content: any = JSON.stringify(h);
-              if (typeof h.content === 'string') content = h.content;
+              if (typeof h.content === 'string') {
+                content = h.content;
+              }
               else if (h.role === 'assistant' && Array.isArray(h.content)) {
+                if (!showCode) return <></>
                 content = h?.content?.map((tool_call, i) => {
-                  if (tool_call.type !== 'tool_use' || !showCode) return <></>
+                  if (tool_call.type !== 'tool_use') return <></>
                   return <div key={i}>{(tool_call.input as fnoutput)?.edits?.map((fn,i) => {
                   return <div key={i}>
                     <div>{fn.file_name}</div>
@@ -276,7 +271,6 @@ export const Helper = () => {
                   })}</div>
                 })
               }
-              console.log(h,content);
               return (
                 <Box
                   key={i}
