@@ -22,7 +22,7 @@ interface fnoutput {
   }[];
 }
 
-const systemMessage = `When editing code, Write a step by brief plan of code changes that need to be made ( 1 line.), then make all necessary code changes to implement plan. 
+const systemMessage = `When editing code, ONLY WRITE 1 BRIEF LINE DESCRIBING THE CHANGE, then go straight to making all necessary code changes to implement plan. 
 When fixing bugs, instead think about why the bug was introduced in the first place then fix it.
 Dont remove features by accident. 
 Remember to import things when needed. Please write code that is absolutely perfect with no shortcuts taken and no bugs.
@@ -94,7 +94,6 @@ export const Helper = () => {
   }
   const [history, setHistory] = useState<Array<ToolsBetaMessageParam>>([]);
   const [thinking, setThinking] = useState(false);
-  const [screenshotting,setScreenshotting] = useState(false);
   const [issues,setIssues] = useState<any[]>([]);
   const handleSubmit = async () => {
     try {
@@ -103,7 +102,8 @@ export const Helper = () => {
       if (uploadedImage?.length) images.push(uploadedImage);
       setThinking(true);
       const rres = await fetch('/think', { method: 'post', headers: { 'content-type': 'application/json','X-API-Key':apiKey }, body: JSON.stringify({ 
-        instruction:prompt,
+        history,
+        instruction:value,
         files:selectedFiles.map(file => file.slice(folder?.length)),
         folder,
         prompt:systemMessage+'\n'+prompt,
@@ -117,7 +117,7 @@ export const Helper = () => {
       const {res,issues,tokens_used,tokens_remaining}:{res:Array<ToolsBetaMessageParam>,issues:[],tokens_used:number,tokens_remaining:number} = await rres.json();
       // opnly show most recent for now
       setIssues(issues);
-      setHistory([...res]);
+      setHistory([...history,...res]);
       console.log('tokens_used',tokens_used,'tokens_remaining',tokens_remaining);
     }
 
