@@ -237,7 +237,7 @@ export const Helper = () => {
         </Tabs>
       </VStack>
       <Box flex={1} className='w-full p-6' overflowY='auto'>
-        <VStack spacing={6} align='stretch'>
+        <VStack spacing={2} align='stretch'>
           <Box className={`p-4 rounded-lg ${colorMode === 'dark' ? 'bg-gray-700' : 'bg-white shadow-md'}`}> 
             {uploadedImage && <>
               <div>Uploaded image:</div>
@@ -275,7 +275,7 @@ export const Helper = () => {
                 <Box
                   key={i}
                   whiteSpace='pre-wrap'
-                  className={`p-4 rounded-lg mb-4`}
+                  className={`p-2 rounded-lg`}
                 >
                   <Box fontWeight='bold' mb={2}>{h.role === 'assistant' ? 'AI' : 'You'}</Box>
                   {content}
@@ -283,26 +283,37 @@ export const Helper = () => {
               )
             })}
           </Box>
-          <HStack alignItems='flex-start' spacing={4}>
-            <Textarea
-              value={value}
-              onChange={handleChange}
-              placeholder='What should the AI do now?'
-              size='md'
-              rows={5}
-              resize='none'
-              className={`flex-grow ${colorMode === 'dark' ? 'bg-gray-700 text-white' : 'bg-white'}`}
-            />
-            <Button
-              onClick={handleSubmit}
-              isLoading={thinking}
-              colorScheme='blue'
-              size='lg'
-              px={8}
-            >
-              Send
-            </Button>
-          </HStack>
+          <VStack alignItems='stretch' spacing={2}>
+            <HStack spacing={2}>
+              <div>Templates</div>
+              <Button size='sm' borderRadius='full' onClick={() => setValue('Completely and cleanly implement the feature: {feature_description}')}>
+                Feature
+              </Button>
+              <Button size='sm' borderRadius='full' onClick={() => setValue('Do a 5 whys root cause analysis of why {bug_description}, then fix it. Feel free to completely rewrite the code to fix. You keep failing to fix this.')}>
+                Bug
+              </Button>
+            </HStack>
+            <HStack alignItems='flex-start' spacing={4}>
+              <Textarea
+                value={value}
+                onChange={handleChange}
+                placeholder='What should the AI do now?'
+                size='md'
+                rows={5}
+                resize='none'
+                className={`flex-grow ${colorMode === 'dark' ? 'bg-gray-700 text-white' : 'bg-white'}`}
+              />
+              <Button
+                onClick={handleSubmit}
+                isLoading={thinking}
+                colorScheme='blue'
+                size='lg'
+                px={8}
+              >
+                Send
+              </Button>
+            </HStack>
+          </VStack>
         </VStack >
       </Box >
     </HStack>
